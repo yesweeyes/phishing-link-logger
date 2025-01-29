@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
-
+CORS(app, origins="*")
 logs = []
 
 @app.route('/api/log', methods=['POST'])
@@ -28,3 +29,14 @@ def log_click():
 
     logs.append(log_entry)
     return jsonify({"message": "Logged", "data": logs}), 200
+
+@app.route('/api/logs', methods=['GET'])
+def get_logs():
+    return jsonify(logs)
+
+@app.route('/', methods=['GET'])
+def home():
+    return "<p>Hello, World!</p>"
+
+def handler(request, *args, **kwargs):
+    return app(request, *args, **kwargs)
