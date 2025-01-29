@@ -4,12 +4,11 @@ import datetime
 
 app = Flask(__name__)
 CORS(app, origins="*")
-logs = []  # Note: This will reset on each function invocation since it's serverless
+logs = []
 
 @app.route('/log', methods=['POST'])
 def log_click():
     data = request.json
-    # Extracting data from the request
     user_agent = data.get('userAgent', 'Unknown')
     ip_address = request.headers.get('x-forwarded-for', request.remote_addr)
     timestamp = str(datetime.datetime.now())
@@ -18,7 +17,6 @@ def log_click():
     timezone = data.get('timezone', 'Unknown')
     language = data.get('language', 'Unknown')
     
-    # Create the log entry
     log_entry = {
         "IP Address": ip_address,
         "User Agent": user_agent,
@@ -34,8 +32,15 @@ def log_click():
 
 @app.route('/logs', methods=['GET'])
 def get_logs():
-    return jsonify(logs)  # Return all logs when a GET request is made
+    return jsonify(logs)
 
-# Vercel handler function
-def handler(event, context):
-    return app.handle_request()
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"message": "Server is running"}), 200
+
+# Modified handler for Vercel
+@app.route('/<path:path>', methods=['GET', 'POST'])
+def catch_all(path):
+    return app
+
+app = app.wsgi_app
