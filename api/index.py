@@ -16,7 +16,7 @@ def log_click():
     screen_resolution = data.get('screenResolution', 'Unknown')
     timezone = data.get('timezone', 'Unknown')
     language = data.get('language', 'Unknown')
-    
+   
     log_entry = {
         "IP Address": ip_address,
         "User Agent": user_agent,
@@ -26,7 +26,7 @@ def log_click():
         "Timezone": timezone,
         "Language": language
     }
-    
+   
     logs.append(log_entry)
     return jsonify({"message": "Logged", "data": logs}), 200
 
@@ -38,9 +38,19 @@ def get_logs():
 def home():
     return jsonify({"message": "Server is running"}), 200
 
-# Modified handler for Vercel
+# Modified catch-all route to return a 404 response
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def catch_all(path):
-    return app
+    return jsonify({"error": "Not found"}), 404
 
-app = app.wsgi_app
+# Error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return jsonify({"error": "Not found"}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({"error": "Internal server error"}), 500
+
+# For Vercel deployment
+application = app
