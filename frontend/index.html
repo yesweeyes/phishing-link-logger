@@ -51,7 +51,7 @@
     </table>
 
     <script>
-        const apiUrl = "<TODO: REPLACE WITH BACKEND URL> /api/log"; // Update with the actual deployed URL
+        const apiUrl = "https://phishing-link-logger.vercel.app/api/log"; // Update with the actual deployed URL
 
         document.getElementById("phishingLink").addEventListener("click", function(event) {
             event.preventDefault();
@@ -105,7 +105,7 @@
 
         // Load logs when the page loads
         function loadLogs() {
-            fetch("<TODO: REPLACE WITH BACKEND URL> /api/logs") // Update to the actual deployed URL
+            fetch("https://phishing-link-logger.vercel.app/api/logs") // Update to the actual deployed URL
             .then(response => response.json())
             .then(data => updateLogs(data))
             .catch(error => console.error("Error loading logs:", error));
