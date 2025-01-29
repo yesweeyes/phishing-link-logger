@@ -43,26 +43,32 @@
     </table>
 
     <script>
+        // Update to the deployed backend URL
+        const apiUrl = "https://phishing-link-logger-lj1llqeaf-yesweeyes-projects.vercel.app/api/log"; // Update with the actual deployed URL
+
         document.getElementById("phishingLink").addEventListener("click", function(event) {
             event.preventDefault();
             
-            fetch("http://localhost:5000/log", {
+            // Send click data to the backend
+            fetch(apiUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    userAgent: navigator.userAgent
+                    userAgent: navigator.userAgent,
+                    timestamp: new Date().toISOString() // Add timestamp to log
                 })
             }).then(response => response.json())
-            .then(data => updateLogs(data.data));
+            .then(data => updateLogs(data.data))
+            .catch(error => console.error("Error:", error));
 
             alert("This was a phishing attempt! Always check links before clicking.");
         });
 
         function updateLogs(logs) {
             let logTable = document.getElementById("logData");
-            logTable.innerHTML = "";
+            logTable.innerHTML = "";  // Clear previous logs
             logs.forEach(log => {
                 let row = `<tr>
                     <td>${log["IP Address"]}</td>
@@ -73,11 +79,12 @@
             });
         }
 
-        // Load logs on page load
+        // Load logs when the page loads
         function loadLogs() {
-            fetch("http://localhost:5000/logs")
+            fetch("https://phishing-link-logger-lj1llqeaf-yesweeyes-projects.vercel.app/api/logs") // Update to the actual deployed URL
             .then(response => response.json())
-            .then(data => updateLogs(data));
+            .then(data => updateLogs(data))
+            .catch(error => console.error("Error loading logs:", error));
         }
         loadLogs();
     </script>
