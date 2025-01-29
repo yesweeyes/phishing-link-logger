@@ -4,10 +4,9 @@ import datetime
 
 app = Flask(__name__)
 
-# Enable CORS for all domains
-CORS(app)  # This allows all origins. You can restrict it by setting the 'origins' parameter if needed.
+CORS(app, origins="*") 
 
-logs = []  # Store logs in memory (this will reset every time you deploy the app)
+logs = []  
 
 @app.route('/log', methods=['POST'])
 def log_click():
@@ -48,4 +47,4 @@ def handler(request):
     return app(request, None)
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Run the Flask app in debug mode
+    app.run()  
