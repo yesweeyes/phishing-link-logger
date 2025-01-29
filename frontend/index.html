@@ -23,6 +23,9 @@
         th {
             background-color: #f2f2f2;
         }
+        .logEntry {
+            border-bottom: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -36,29 +39,40 @@
             <tr>
                 <th>IP Address</th>
                 <th>User Agent</th>
-                <th>Time</th>
+                <th>Timestamp</th>
+                <th>Referrer</th>
+                <th>Location</th>
+                <th>Screen Resolution</th>
+                <th>Timezone</th>
+                <th>Language</th>
             </tr>
         </thead>
         <tbody id="logData"></tbody>
     </table>
 
     <script>
-        // Update to the deployed backend URL
-        const apiUrl = "https://phishing-link-logger-lj1llqeaf-yesweeyes-projects.vercel.app/api/log"; // Update with the actual deployed URL
+        const apiUrl = "https://phishing-link-logger.vercel.app/api/log"; // Update with the actual deployed URL
 
         document.getElementById("phishingLink").addEventListener("click", function(event) {
             event.preventDefault();
             
+            // Capture additional information
+            const clickData = {
+                userAgent: navigator.userAgent,
+                timestamp: new Date().toISOString(), // Add timestamp to log
+                referrer: document.referrer,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                language: navigator.language || navigator.userLanguage
+            };
+
             // Send click data to the backend
             fetch(apiUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    userAgent: navigator.userAgent,
-                    timestamp: new Date().toISOString() // Add timestamp to log
-                })
+                body: JSON.stringify(clickData)
             }).then(response => response.json())
             .then(data => updateLogs(data.data))
             .catch(error => console.error("Error:", error));
@@ -67,13 +81,23 @@
         });
 
         function updateLogs(logs) {
+            // Sort logs in descending order by timestamp (latest click first)
+            logs.sort((a, b) => new Date(b["Time"]) - new Date(a["Time"]));
+
             let logTable = document.getElementById("logData");
             logTable.innerHTML = "";  // Clear previous logs
+
+            // Loop through sorted logs and add to the table
             logs.forEach(log => {
-                let row = `<tr>
+                let row = `<tr class="logEntry">
                     <td>${log["IP Address"]}</td>
                     <td>${log["User Agent"]}</td>
                     <td>${log["Time"]}</td>
+                    <td>${log["Referrer"]}</td>
+                    <td>${log["Location"]}</td>
+                    <td>${log["Screen Resolution"]}</td>
+                    <td>${log["Timezone"]}</td>
+                    <td>${log["Language"]}</td>
                 </tr>`;
                 logTable.innerHTML += row;
             });
@@ -81,11 +105,12 @@
 
         // Load logs when the page loads
         function loadLogs() {
-            fetch("https://phishing-link-logger-lj1llqeaf-yesweeyes-projects.vercel.app/api/logs") // Update to the actual deployed URL
+            fetch("https://phishing-link-logger.vercel.app/api/logs") // Update to the actual deployed URL
             .then(response => response.json())
             .then(data => updateLogs(data))
             .catch(error => console.error("Error loading logs:", error));
         }
+
         loadLogs();
     </script>
 
