@@ -3,7 +3,9 @@ from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
-CORS(app)  # Allow frontend to access backend
+
+# Allow all origins (you can specify specific origins here if needed)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 logs = []  # Store logs in memory (resets every deployment)
 
@@ -27,6 +29,6 @@ def log_click():
 def get_logs():
     return jsonify(logs)
 
-# Required for Vercel
+# Required for Vercel deployment - entry point
 def handler(request):
     return app(request, None)
