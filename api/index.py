@@ -40,7 +40,8 @@ def log_click():
 
 @app.route('/logs', methods=['GET'])
 def get_logs():
-    return jsonify(logs)  # Return all logs when a GET request is made
+    return jsonify({"messasge": "Hello World!"})
+    # return jsonify(logs)  # Return all logs when a GET request is made
 
 # This is required for Vercel to work properly (you can keep it as is)
 def handler(request):
