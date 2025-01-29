@@ -1,26 +1,23 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
-
-CORS(app, origins="*") 
-
-logs = []  
+CORS(app, origins="*")
+logs = []  # Note: This will reset on each function invocation since it's serverless
 
 @app.route('/log', methods=['POST'])
 def log_click():
     data = request.json
-
     # Extracting data from the request
     user_agent = data.get('userAgent', 'Unknown')
-    ip_address = request.headers.get('x-forwarded-for', request.remote_addr)  # Get the user's IP address
-    timestamp = str(datetime.datetime.now())  # Get the current timestamp
+    ip_address = request.headers.get('x-forwarded-for', request.remote_addr)
+    timestamp = str(datetime.datetime.now())
     referrer = data.get('referrer', 'Unknown')
     screen_resolution = data.get('screenResolution', 'Unknown')
     timezone = data.get('timezone', 'Unknown')
     language = data.get('language', 'Unknown')
-
+    
     # Create the log entry
     log_entry = {
         "IP Address": ip_address,
@@ -31,21 +28,14 @@ def log_click():
         "Timezone": timezone,
         "Language": language
     }
-
-    # Append the log entry to the logs list
+    
     logs.append(log_entry)
-
-    # Return the logs data in the response
     return jsonify({"message": "Logged", "data": logs}), 200
 
 @app.route('/logs', methods=['GET'])
 def get_logs():
-    return jsonify({"messasge": "Hello World!"})
-    # return jsonify(logs)  # Return all logs when a GET request is made
+    return jsonify(logs)  # Return all logs when a GET request is made
 
-# This is required for Vercel to work properly (you can keep it as is)
-def handler(request):
-    return app(request, None)
-
-if __name__ == "__main__":
-    app.run()  
+# Vercel handler function
+def handler(event, context):
+    return app.handle_request()
